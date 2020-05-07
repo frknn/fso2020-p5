@@ -1,19 +1,36 @@
-import React from 'react'
+import React, { useState } from 'react'
 
 function BlogForm(props) {
-  const { handleSubmit, titleValue, authorValue, urlValue, handleTitleChange, handleAuthorChange, handleUrlChange } = props
+  const { createBlog } = props
+
+  const [title, setTitle] = useState('')
+  const [author, setAuthor] = useState('')
+  const [url, setUrl] = useState('')
+
+  const clearForm = () => {
+    setTitle('')
+    setAuthor('')
+    setUrl('')
+  }
+
+  const addBlog = async (e) => {
+    e.preventDefault()
+    await createBlog({ title, author, url })
+    clearForm()
+  }
+
   return (
     <div>
       <h2>create new blog</h2>
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={addBlog}>
         <div>
-          title: <input type="text" value={titleValue} name="title" onChange={handleTitleChange} />
+          title: <input type="text" value={title} name="title" onChange={({ target }) => setTitle(target.value)} />
         </div>
         <div>
-          author: <input type="text" value={authorValue} name="author" onChange={handleAuthorChange} />
+          author: <input type="text" value={author} name="author" onChange={({ target }) => setAuthor(target.value)} />
         </div>
         <div>
-          url: <input type="text" value={urlValue} name="url" onChange={handleUrlChange} />
+          url: <input type="text" value={url} name="url" onChange={({ target }) => setUrl(target.value)} />
         </div>
         <button type="submit">create</button>
       </form>

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import Blog from './components/Blog'
 import LoginForm from './components/LoginForm'
 import BlogForm from './components/BlogForm'
+import Togglable from './components/Togglable'
 import blogService from './services/blogs'
 import loginService from './services/login'
 
@@ -9,16 +10,8 @@ const App = () => {
   const [blogs, setBlogs] = useState([])
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
-  const [title, setTitle] = useState('')
-  const [author, setAuthor] = useState('')
-  const [url, setUrl] = useState('')
   const [user, setUser] = useState(null)
 
-  const clearBlogForm = () => {
-    setTitle('')
-    setAuthor('')
-    setUrl('')
-  }
 
   const clearLoginForm = () => {
     setUsername('')
@@ -27,7 +20,7 @@ const App = () => {
 
   useEffect(() => {
     blogService.getAll().then(blogs =>
-      setBlogs(blogs)
+      setBlogs(blogs.sort((a, b) => b.likes - a.likes))
     )
   }, [])
 
@@ -41,7 +34,7 @@ const App = () => {
   }, [])
 
   const handleLogin = async (e) => {
-    e.preventDefault();
+    e.preventDefault()
     try {
       const user = await loginService.login({
         username, password
@@ -62,36 +55,47 @@ const App = () => {
     setUser(null)
   }
 
-  const handleSubmit = async (e) => {
-    e.preventDefault()
+  const addBlog = async (blogObj) => {
     try {
-      const blogObj = { title, author, url }
       const blog = await blogService.createBlog(blogObj)
       setBlogs(blogs.concat(blog))
-      clearBlogForm()
 
     } catch (error) {
-      clearBlogForm()
       alert(error)
     }
   }
+
+  const likeBlog = async (blogObj, id) => {
+    try {
+      const blog = await blogService.updateBlog(blogObj, id)
+      setBlogs(blogs.map(b => b.id !== blog.id ? b : blog))
+    } catch (error) {
+      alert(error)
+    }
+  }
+
+  const removeBlog = async (id) => {
+    try {
+      await blogService.removeBlog(id)
+      setBlogs(blogs.filter(b => b.id !== id))
+    } catch (error) {
+      alert(error)
+    }
+  }
+
 
   return (
     <div>
       {user ? <>
         <h1>blogs</h1>
-        <p style={{ display: "inline" }}>{user.name} logged in</p> <button onClick={handleLogout}>log out</button>
-        <BlogForm
-          handleSubmit={handleSubmit}
-          titleValue={title}
-          authorValue={author}
-          urlValue={url}
-          handleTitleChange={({ target }) => setTitle(target.value)}
-          handleAuthorChange={({ target }) => setAuthor(target.value)}
-          handleUrlChange={({ target }) => setUrl(target.value)}
-        />
-        ___________________________________
-        {blogs.map(blog => <Blog key={blog.id} blog={blog} />)}
+        <p style={{ display: 'inline' }}>{user.name} logged in</p> <button onClick={handleLogout}>log out</button>
+        <Togglable buttonLabel='add new blog'>
+          <BlogForm
+            createBlog={addBlog}
+          />
+        </Togglable>
+        <hr />
+        {blogs.map(blog => <Blog key={blog.id} blog={blog} updateBlog={likeBlog} deleteBlog={removeBlog} />)}
       </> :
         <LoginForm
           handleLogin={handleLogin}
