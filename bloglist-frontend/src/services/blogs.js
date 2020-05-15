@@ -24,10 +24,20 @@ const createBlog = async (blog) => {
   }
 }
 
-const updateBlog = async (blog, id) => {
+const updateBlog = async (comment, blogId) => {
   try {
-    const res = await axios.put(`${baseUrl}/${id}`, blog)
+    const res = await axios.put(`${baseUrl}/${blogId}`, comment)
     return res.data
+  } catch (error) {
+    throw new Error(error)
+  }
+}
+
+const addComment = async (comment, id) => {
+  try {
+    const res = await axios.post(`${baseUrl}/${id}/comments`, comment)
+    return res.data
+
   } catch (error) {
     throw new Error(error)
   }
@@ -45,4 +55,4 @@ const removeBlog = async (id) => {
   }
 }
 
-export default { getAll, setToken, createBlog, updateBlog, removeBlog }
+export default { getAll, setToken, createBlog, updateBlog, removeBlog, addComment }

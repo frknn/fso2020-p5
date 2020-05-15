@@ -6,7 +6,7 @@ const login = async (user) => {
     const res = await axios.post(baseUrl, user)
     return res.data
   } catch (error) {
-    throw new Error('invalid credentials!!!')
+    throw new Error('invalid credentials!!! - occured in service')
   }
 }
 

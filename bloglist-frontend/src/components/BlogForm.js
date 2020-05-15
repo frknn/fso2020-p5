@@ -1,7 +1,10 @@
 import React, { useState } from 'react'
+import { useDispatch } from 'react-redux'
+import { createBlog } from '../reducers/blogReducer'
 
 function BlogForm(props) {
-  const { createBlog } = props
+
+  const dispatch = useDispatch()
 
   const [title, setTitle] = useState('')
   const [author, setAuthor] = useState('')
@@ -15,7 +18,7 @@ function BlogForm(props) {
 
   const addBlog = async (e) => {
     e.preventDefault()
-    await createBlog({ title, author, url })
+    dispatch(createBlog({ title, author, url }))
     clearForm()
   }
 
